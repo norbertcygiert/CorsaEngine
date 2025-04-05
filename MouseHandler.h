@@ -40,10 +40,8 @@ public:
 		bool rmbPressed() const noexcept { return rmbDown; }
 	private:
 		Type type;
-		bool lmbDown;
-		bool rmbDown;
-		int x;
-		int y;
+		bool lmbDown, rmbDown;
+		int x, y;
 	};
 public:
 	MouseHandler() = default;

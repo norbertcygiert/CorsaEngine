@@ -7,7 +7,6 @@ int __stdcall WinMain(
 	_In_ int nShowCmd
 )
 {
-	//Creating window instance
 	try {
 		return Application{}.start();
 	}

@@ -2,7 +2,7 @@
 #include <queue>
 #include <bitset>
 #include <optional>
-//This class is also a singleton
+//This class is also a singleton like Window
 class KeyboardHandler {
 	friend class Window;
 

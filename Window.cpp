@@ -3,7 +3,7 @@
 Window::WndClass Window::WndClass::wndClass;
 
 Window::WndClass::WndClass() noexcept : hInstance(GetModuleHandle(nullptr)) {
-	//creating and registering a window class
+	//Creating and Registering a WindowClass
 	WNDCLASSEX wc = { 0 };
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_OWNDC;
@@ -60,24 +60,24 @@ std::optional<int> Window::ProcessMessages() {
 }
 
 LRESULT __stdcall Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-	//insane evil hack to use OOP on winapi windows 
+	//Insane evil hack to use OOP on WinApi created windows.
 	if (msg == WM_NCCREATE) {
 		//https://en.cppreference.com/w/cpp/language/reinterpret_cast
-		//these two magic lines extract the window pointer
+		//Extract the window pointer from created struct.
 		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 		Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
-		//then we save the extracted pointer to GWLP_USERDATA (so now our window class is whats on the winapi side)
+		//Save the extracted pointer to GWLP_USERDATA (so now our window class is what is actualy on the WinApi side)
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
-		//we swap the message handling procedure to our own
+		//Swap the message handling procedure to our own
 		SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::HandleMsgThunk));
-		//forward message to our handler
+		//Forward message to our handler
 		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 	}
 	return DefWindowProc(hWnd,msg,wParam,lParam);
 }
 
 LRESULT __stdcall Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
-	//get pointer to window class
+	//Get pointer to window class
 	Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 	return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 }
@@ -88,12 +88,14 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		PostQuitMessage(0);
 		return 0;
 	case WM_KEYDOWN:
+		//Check the 30th bit for if the key was being held before
+		//https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-syskeydown#parameters
 		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) {
 			keybd.onKeyDown(static_cast<unsigned char>(wParam));
 		}
 		break;
 	case WM_SYSKEYDOWN: //For handling ALT-key and other systemkeys
-		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) {
+		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) { 
 			keybd.onKeyDown(static_cast<unsigned char>(wParam));
 		}
 		break;

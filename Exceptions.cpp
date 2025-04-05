@@ -10,20 +10,9 @@ const char* AstraException::what() const noexcept
 	return buf.c_str();
 }
 
-const char* AstraException::getType() const noexcept
-{
-	return "nullptr";
-}
-
-int AstraException::getLine() const noexcept
-{
-	return line;
-}
-
-const std::string& AstraException::getFile() const noexcept
-{
-	return file;
-}
+const char* AstraException::getType() const noexcept { return "AstraEngine - Error"; }
+int AstraException::getLine() const noexcept { return line; }
+const std::string& AstraException::getFile() const noexcept { return file; }
 
 std::string AstraException::getOriginString() const noexcept
 {

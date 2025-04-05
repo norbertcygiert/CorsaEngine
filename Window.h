@@ -47,7 +47,8 @@ public:
 	class WndClass 
 	{
 	public:
-		static const char* getName() noexcept; //lowercase first letter so i can see wheter its mine or winapi
+		//For all future files I try to keep the convention of my functions being written with lowercase first letter 
+		static const char* getName() noexcept; 
 		static HINSTANCE getInstance() noexcept;
 	private:
 		WndClass() noexcept;

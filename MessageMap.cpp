@@ -2,7 +2,8 @@
 #include <sstream>
 #include <iomanip>
 
-// secret messages
+//Not used for now
+
 #define WM_UAHDESTROYWINDOW 0x0090
 #define WM_UAHDRAWMENU 0x0091
 #define WM_UAHDRAWMENUITEM 0x0092

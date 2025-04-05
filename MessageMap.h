@@ -1,5 +1,5 @@
 #pragma once
-
+//Not used for now
 #include "BetterWin.h"
 #include <unordered_map>
 #include <string>

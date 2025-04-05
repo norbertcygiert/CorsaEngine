@@ -14,9 +14,7 @@ std::optional<KeyboardHandler::Event> KeyboardHandler::readKey() noexcept {
 	else return KeyboardHandler::Event();
 };
 
-bool KeyboardHandler::keyEmpty() const noexcept {
-	return keyBuffer.empty();
-}
+bool KeyboardHandler::keyEmpty() const noexcept { return keyBuffer.empty(); }
 
 std::optional<char> KeyboardHandler::readChar() noexcept{
 	if (charBuffer.size() > 0u){

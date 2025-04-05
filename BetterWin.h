@@ -4,9 +4,9 @@
 #define _WIN32_WINNT 0x0601
 #include <sdkddkver.h>
 
-//defining macros to make sure we dont include some unnecessary headers (this speeds up building the project)
-//things that we DO in fact need are commented out
-//for reference on this ctrl + click <Windows.h>
+//Defining macros to make sure we dont include some unnecessary headers (this speeds up building the project).
+//Things that we DO in fact need are commented out.
+//For reference on this ctrl + click <Windows.h>
 
 
 #define WIN32_LEAN_AND_MEAN

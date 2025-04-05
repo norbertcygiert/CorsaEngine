@@ -2,7 +2,7 @@
 #include <exception>
 #include <string>
 
-class AstraException : public std::exception {
+class AstraException : public std::exception { //Create our wrapper around the std::exception class
 public:
 	AstraException(int line, const char* file) noexcept;
 	const char* what() const noexcept override;

@@ -1,7 +1,7 @@
 #include "BetterWin.h"
 #include "MouseHandler.h"
 
-std::pair<int, int> MouseHandler::getCursorPos() const noexcept { return { x,y }; }
+std::pair<int, int> MouseHandler::getCursorPos() const noexcept { return { x, y }; }
 
 std::optional<MouseHandler::RawDelta> MouseHandler::readRawDelta() noexcept
 {
@@ -36,8 +36,7 @@ bool MouseHandler::rawOn() const noexcept { return rawEnabled; }
 
 void MouseHandler::onMove(int newx, int newy) noexcept
 {
-	x = newx;
-	y = newy;
+	x = newx, y = newy;
 	buf.push(MouseHandler::Event(MouseHandler::Event::Type::MOVE, *this));
 	trimBuffer();
 }

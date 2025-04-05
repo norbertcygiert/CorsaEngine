@@ -5,8 +5,8 @@
 class Application {
 private:
 	Window wnd;
-	void frame();
+	void frame(); //Being called on every frame
 public:
 	Application();
-	int start();
+	int start(); //Initializing the application
 };
