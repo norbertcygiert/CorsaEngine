@@ -46,6 +46,11 @@ public:
 		HRESULT hr;
 	};
 	
+	class NoGraphicsException : public Exception {
+	public:
+		using Exception::Exception;
+		const char* getType() const noexcept override;
+	};
 
 	class WndClass 
 	{
@@ -67,3 +72,4 @@ public:
 
 #define WND_EXCEPTION(hr) Window::HRESException(__LINE__, __FILE__, hr)
 #define WND_LAST_EXCEPT() Window::HRESException(__LINE__,__FILE__, GetLastError())
+#define WND_NOGRAPHICS_EXCEPT() Window::NoGraphicsException(__LINE__, __FILE__);

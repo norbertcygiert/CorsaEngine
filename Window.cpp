@@ -65,6 +65,9 @@ std::optional<int> Window::ProcessMessages() {
 }
 
 Graphics& Window::accessGraphics(){
+	if (!graphics) {
+		throw WND_NOGRAPHICS_EXCEPT();
+	}
 	return *graphics;
 }
 
@@ -185,3 +188,7 @@ const char* Window::HRESException::getType() const noexcept { return "Window HrE
 HRESULT Window::HRESException::getErrorCode() const noexcept { return hr; }
 std::string Window::HRESException::getErrorDescription() const noexcept { return Exception::translateErrorCode(hr); }
 
+const char* Window::NoGraphicsException::getType() const noexcept
+{
+	return nullptr;
+}

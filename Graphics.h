@@ -1,6 +1,8 @@
 #pragma once
 #include "BetterWin.h"
 #include <d3d11.h>
+#include <string>
+#include "Exceptions.h"
 class Graphics {
 private:
     ID3D11Device* pDevice = nullptr;
@@ -18,4 +20,29 @@ public:
         pContext->ClearRenderTargetView(pTarget, color);
     }
 
+
+	class Exception : public AstraException
+	{
+		using AstraException::AstraException;
+	public:
+		static std::string translateErrorCode(HRESULT hr) noexcept;
+	};
+
+	class HRESException : public Exception
+	{
+	public:
+		HRESException(int line, const char* file, HRESULT hr) noexcept;
+		const char* what() const noexcept override;
+		const char* getType() const noexcept override;
+		HRESULT getErrorCode() const noexcept;
+		std::string getErrorDescription() const noexcept;
+	private:
+		HRESULT hr;
+	};
+
+	class DeviceRemovedException : public HRESException {
+		using HRESException::HRESException;
+	public:
+		const char* getType() const noexcept override;
+	};
 };
