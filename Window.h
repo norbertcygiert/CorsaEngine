@@ -3,12 +3,15 @@
 #include "Exceptions.h"
 #include "KeyboardHandler.h"
 #include "MouseHandler.h"
+#include "Graphics.h"
+#include <memory>
 #include <optional>
 //https://en.wikipedia.org/wiki/Singleton_pattern for future reference
 class Window {
 private:
 	int w, h;
 	HWND hWnd;
+	std::unique_ptr<Graphics> graphics;
 public:
 	KeyboardHandler keybd;
 	MouseHandler mouse;
@@ -18,7 +21,7 @@ public:
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	static std::optional<int> ProcessMessages();
-
+	Graphics& accessGraphics();
 
 	static LRESULT __stdcall HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT __stdcall HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

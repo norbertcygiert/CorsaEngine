@@ -44,7 +44,12 @@ Window::Window(int w, int h, const char* name) : w(w),h(h) {
 		WndClass::getInstance(),
 		this
 	);
+	if (hWnd == nullptr) {
+		throw WND_LAST_EXCEPT();
+	}
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
+	//Create a graphics object
+	graphics = std::make_unique<Graphics>(hWnd);
 }
 
 std::optional<int> Window::ProcessMessages() {
@@ -57,6 +62,10 @@ std::optional<int> Window::ProcessMessages() {
 		DispatchMessage(&msg);
 	}
 	return {};
+}
+
+Graphics& Window::accessGraphics(){
+	return *graphics;
 }
 
 LRESULT __stdcall Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){

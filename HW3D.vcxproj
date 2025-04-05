@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Exceptions.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="hwmain.cpp" />
     <ClCompile Include="KeyboardHandler.cpp" />
     <ClCompile Include="MessageMap.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="BetterWin.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="KeyboardHandler.h" />
     <ClInclude Include="MessageMap.h" />
     <ClInclude Include="MouseHandler.h" />
