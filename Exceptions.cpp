@@ -10,13 +10,13 @@ const char* AstraException::what() const noexcept
 	return buf.c_str();
 }
 
-const char* AstraException::getType() const noexcept { return "AstraEngine - Error"; }
+const char* AstraException::getType() const noexcept { return "AstraEngine - Critical Error"; }
 int AstraException::getLine() const noexcept { return line; }
 const std::string& AstraException::getFile() const noexcept { return file; }
 
 std::string AstraException::getOriginString() const noexcept
 {
 	std::ostringstream oss;
-	oss << "File: " << file << "\nLine: " << line;
+	oss << "Error thrown from:\n" << "[File] " << file << "\n[Line] " << line;
 	return oss.str();
 }

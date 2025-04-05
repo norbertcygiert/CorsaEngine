@@ -5,7 +5,7 @@ std::pair<int, int> MouseHandler::getCursorPos() const noexcept { return { x, y 
 
 std::optional<MouseHandler::RawDelta> MouseHandler::readRawDelta() noexcept
 {
-	if (rawDeltaBuffer.empty()){
+	if (rawDeltaBuffer.empty()) {
 		return std::nullopt;
 	}
 	const RawDelta d = rawDeltaBuffer.front();
@@ -16,7 +16,7 @@ std::optional<MouseHandler::RawDelta> MouseHandler::readRawDelta() noexcept
 int MouseHandler::getX() const noexcept { return x; }
 int MouseHandler::getY() const noexcept { return y; }
 bool MouseHandler::isInWindow() const noexcept { return inWindow; }
-bool MouseHandler::lmbPressed() const noexcept{ return lmbDown; }
+bool MouseHandler::lmbPressed() const noexcept { return lmbDown; }
 bool MouseHandler::rmbPressed() const noexcept { return rmbDown; }
 
 std::optional<MouseHandler::Event> MouseHandler::read() noexcept

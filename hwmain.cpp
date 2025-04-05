@@ -10,13 +10,13 @@ int __stdcall WinMain(
 	try {
 		return Application{}.start();
 	}
-	catch(const AstraException& e){
-		MessageBox(nullptr, e.what(), e.getType(), MB_OK | MB_ICONERROR);
+	catch (const AstraException& e) {
+		MessageBox(nullptr, e.what(), e.getType(), MB_TASKMODAL | MB_OK | MB_ICONERROR);
 	}
 	catch (const std::exception& e) {
 		MessageBox(nullptr, e.what(), "Standard Lib Error", MB_OK | MB_ICONERROR);
 	}
-	catch ( ... ) {
+	catch (...) {
 		MessageBox(nullptr, "No error message provided", "Unknown Error", MB_OK | MB_ICONERROR);
 	}
 	exit(0);

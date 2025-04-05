@@ -22,10 +22,10 @@ Window::WndClass::WndClass() noexcept : hInstance(GetModuleHandle(nullptr)) {
 
 Window::~Window() { DestroyWindow(hWnd); }
 Window::WndClass::~WndClass() { UnregisterClass(wndClassName, getInstance()); }
-const char* Window::WndClass::getName() noexcept{ return wndClassName; }
+const char* Window::WndClass::getName() noexcept { return wndClassName; }
 HINSTANCE Window::WndClass::getInstance() noexcept { return wndClass.hInstance; }
 
-Window::Window(int w, int h, const char* name) : w(w),h(h) {
+Window::Window(int w, int h, const char* name) : w(w), h(h) {
 	RECT wr;
 	wr.left = 100;
 	wr.right = w + wr.left;
@@ -64,14 +64,14 @@ std::optional<int> Window::ProcessMessages() {
 	return {};
 }
 
-Graphics& Window::accessGraphics(){
+Graphics& Window::accessGraphics() {
 	if (!graphics) {
 		throw WND_NOGRAPHICS_EXCEPT();
 	}
 	return *graphics;
 }
 
-LRESULT __stdcall Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
+LRESULT __stdcall Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	//Insane evil hack to use OOP on WinApi created windows.
 	if (msg == WM_NCCREATE) {
 		//https://en.cppreference.com/w/cpp/language/reinterpret_cast
@@ -85,16 +85,16 @@ LRESULT __stdcall Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPA
 		//Forward message to our handler
 		return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 	}
-	return DefWindowProc(hWnd,msg,wParam,lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-LRESULT __stdcall Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam){
+LRESULT __stdcall Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	//Get pointer to window class
 	Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 	return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 }
 
-LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept{
+LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
 	switch (msg) {
 	case WM_CLOSE:
 		PostQuitMessage(0);
@@ -107,7 +107,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		}
 		break;
 	case WM_SYSKEYDOWN: //For handling ALT-key and other systemkeys
-		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) { 
+		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) {
 			keybd.onKeyDown(static_cast<unsigned char>(wParam));
 		}
 		break;
@@ -143,17 +143,17 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		}
 		break;
 	}
-	return DefWindowProc(hWnd,msg,wParam,lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 //                                       EXCEPTIONS
 
 
-std::string Window::Exception::translateErrorCode(HRESULT hr) noexcept{
+std::string Window::Exception::translateErrorCode(HRESULT hr) noexcept {
 	char* pMsgBuf = nullptr;
 	// windows will allocate memory for err string and make our pointer point to it
 	const DWORD nMsgLen = FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
@@ -170,9 +170,7 @@ std::string Window::Exception::translateErrorCode(HRESULT hr) noexcept{
 	return errorString;
 }
 
-
-
-const char* Window::HRESException::what() const noexcept{
+const char* Window::HRESException::what() const noexcept {
 	std::ostringstream oss;
 	oss << getType() << std::endl
 		<< "[Error Code] " << getErrorCode() << std::endl
@@ -182,13 +180,12 @@ const char* Window::HRESException::what() const noexcept{
 	return buf.c_str();
 }
 
-
 Window::HRESException::HRESException(int line, const char* file, HRESULT hr) noexcept : Exception(line, file), hr(hr) {}
-const char* Window::HRESException::getType() const noexcept { return "Window HrException"; }
+const char* Window::HRESException::getType() const noexcept { return "Window HRESException"; }
 HRESULT Window::HRESException::getErrorCode() const noexcept { return hr; }
 std::string Window::HRESException::getErrorDescription() const noexcept { return Exception::translateErrorCode(hr); }
 
 const char* Window::NoGraphicsException::getType() const noexcept
 {
-	return nullptr;
+	return "Astra Engine: No Graphics Exception";
 }
