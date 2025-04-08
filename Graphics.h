@@ -6,16 +6,16 @@
 #include <string>
 #include <vector>
 #include "DXGIInfoManager.h"
-
+namespace wrl = Microsoft::WRL;
 class Graphics {
 private:
 #ifndef NDEBUG
 	DXGIInfoManager infoManager;
 #endif // !NDEBUG
-	Microsoft::WRL::ComPtr<ID3D11Device> pDevice = nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwap = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
+	wrl::ComPtr<ID3D11Device> pDevice = nullptr;
+	wrl::ComPtr<IDXGISwapChain> pSwap = nullptr;
+	wrl::ComPtr<ID3D11DeviceContext> pContext = nullptr;
+	wrl::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
 public:
 	Graphics(HWND hWnd);
 	Graphics(const Graphics&) = delete;
@@ -23,6 +23,7 @@ public:
 	~Graphics() = default;
 	void endFrame();
 	void clearBuffer(float r, float g, float b) noexcept;
+	void drawTriangle(float angle);
 
 	class Exception : public AstraException
 	{
@@ -42,6 +43,18 @@ public:
 		std::string getErrorInfo() const noexcept;
 	private:
 		HRESULT hr;
+		std::string info;
+	};
+
+	class InfoException : public Exception
+	{
+	public:
+		InfoException(int line, const char* file, std::vector<std::string> infoVec) noexcept;
+		const char* what() const noexcept override;
+		const char* getType() const noexcept override;
+		std::string getErrorDescription() const noexcept;
+		std::string getErrorInfo() const noexcept;
+	private:
 		std::string info;
 	};
 

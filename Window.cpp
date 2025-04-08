@@ -147,8 +147,6 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 }
 
 //                                       EXCEPTIONS
-
-
 std::string Window::Exception::translateErrorCode(HRESULT hr) noexcept {
 	char* pMsgBuf = nullptr;
 	// windows will allocate memory for err string and make our pointer point to it
