@@ -7,7 +7,8 @@
 #include <vector>
 #include "DXGIInfoManager.h"
 namespace wrl = Microsoft::WRL;
-
+#define SCREEN_W 1280
+#define SCREEN_H 960
 class Graphics {
 private:
 #ifndef NDEBUG
@@ -17,6 +18,8 @@ private:
 	wrl::ComPtr<IDXGISwapChain> pSwap = nullptr;
 	wrl::ComPtr<ID3D11DeviceContext> pContext = nullptr;
 	wrl::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
+	wrl::ComPtr<ID3D11DepthStencilView> pDSV = nullptr;
+
 public:
 	Graphics(HWND hWnd);
 	Graphics(const Graphics&) = delete;

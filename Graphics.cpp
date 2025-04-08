@@ -27,304 +27,369 @@ namespace dx = DirectX;
 #endif
 
 Graphics::Graphics(HWND hWnd) {
-    //https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ns-dxgi-dxgi_swap_chain_desc
-    DXGI_SWAP_CHAIN_DESC sd = {};
-    sd.BufferDesc.Width = 0;
-    sd.BufferDesc.Height = 0;
-    sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 0;
-    sd.BufferDesc.RefreshRate.Denominator = 0;
-    sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferCount = 1;
-    sd.OutputWindow = hWnd;
-    sd.Windowed = true;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; //Setting this flag makes the driver select the most efficient presentation technique
-    sd.Flags = 0;
-    UINT swapCreateFlags = 0u;
+	//https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ns-dxgi-dxgi_swap_chain_desc
+	DXGI_SWAP_CHAIN_DESC sd = {};
+	sd.BufferDesc.Width = 0;
+	sd.BufferDesc.Height = 0;
+	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.BufferDesc.RefreshRate.Numerator = 0;
+	sd.BufferDesc.RefreshRate.Denominator = 0;
+	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = 1;
+	sd.OutputWindow = hWnd;
+	sd.Windowed = true;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; //Setting this flag makes the driver select the most efficient presentation technique
+	sd.Flags = 0;
+	UINT swapCreateFlags = 0u;
 #ifndef NDEBUG
-    swapCreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	swapCreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-    HRESULT cc;
+	HRESULT cc;
 
-    GFX_THROW_INFO(D3D11CreateDeviceAndSwapChain(
-        nullptr,
-        D3D_DRIVER_TYPE_HARDWARE,
-        nullptr,
-        swapCreateFlags,
-        nullptr,
-        0,
-        D3D11_SDK_VERSION,
-        &sd,
-        &pSwap,
-        &pDevice,
-        nullptr,
-        &pContext
-    ));
+	GFX_THROW_INFO(D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		swapCreateFlags,
+		nullptr,
+		0,
+		D3D11_SDK_VERSION,
+		&sd,
+		&pSwap,
+		&pDevice,
+		nullptr,
+		&pContext
+	));
 
-    // Gain access to texture subresource in the swap-chain
-    wrl::ComPtr<ID3D11Resource> pBackBuf;
-    //https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-getbuffer
-    GFX_THROW_INFO(pSwap->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuf));
-    GFX_THROW_INFO(pDevice->CreateRenderTargetView(pBackBuf.Get(), nullptr, &pTarget));
+	// Gain access to texture subresource in the swap-chain
+	wrl::ComPtr<ID3D11Resource> pBackBuf;
+	//https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-getbuffer
+	GFX_THROW_INFO(pSwap->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuf));
+	GFX_THROW_INFO(pDevice->CreateRenderTargetView(pBackBuf.Get(), nullptr, &pTarget));
+
+	//Depth testing
+	D3D11_DEPTH_STENCIL_DESC dsd = {};
+	dsd.DepthEnable = 1;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
+	wrl::ComPtr<ID3D11DepthStencilState> pDSState;
+	GFX_THROW_INFO(pDevice->CreateDepthStencilState(&dsd, &pDSState));
+	pContext->OMSetDepthStencilState(pDSState.Get(), 1);
+
+
+
+	wrl::ComPtr<ID3D11Texture2D> pDepthStencil;
+	D3D11_TEXTURE2D_DESC dd = {};
+	dd.Width = SCREEN_W;
+	dd.Height = SCREEN_H;
+	dd.MipLevels = 1;
+	dd.ArraySize = 1;
+	dd.Format = DXGI_FORMAT_D32_FLOAT; //32bit float for all depth values
+	dd.SampleDesc.Count = 1;
+	dd.SampleDesc.Quality = 0;
+	dd.Usage = D3D11_USAGE_DEFAULT;
+	dd.CPUAccessFlags = 0;
+	dd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	GFX_THROW_INFO(pDevice->CreateTexture2D(&dd, nullptr, pDepthStencil.GetAddressOf()));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dDSV = {};
+	dDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	dDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dDSV.Texture2D.MipSlice = 0;
+	GFX_THROW_INFO(pDevice->CreateDepthStencilView(pDepthStencil.Get(), &dDSV, &pDSV));
+	pContext->OMSetRenderTargets(1, pTarget.GetAddressOf(), pDSV.Get());
 }
 
 
 void Graphics::endFrame() {
-    HRESULT cc;
+	HRESULT cc;
 #ifndef NDEBUG
-    infoManager.set();
+	infoManager.set();
 #endif // !NDEBUG
 
-    if (FAILED(cc = pSwap->Present(1u, 0u))) //Syncinterval is basically the value which our device framerate will be divided by, giving us the target FR.
-    {
-        if (cc == DXGI_ERROR_DEVICE_REMOVED) {
-            throw GFX_DEVICE_REMOVED_EXCEPT(pDevice->GetDeviceRemovedReason());
-        }
-        else throw GFX_EXCEPT(cc);
-    }
+	if (FAILED(cc = pSwap->Present(1u, 0u))) //Syncinterval is basically the value which our device framerate will be divided by, giving us the target FR.
+	{
+		if (cc == DXGI_ERROR_DEVICE_REMOVED) {
+			throw GFX_DEVICE_REMOVED_EXCEPT(pDevice->GetDeviceRemovedReason());
+		}
+		else throw GFX_EXCEPT(cc);
+	}
 }
 
-void Graphics::clearBuffer(float r, float g, float b) noexcept{
-    const float color[] = { r, g, b, 1.0f };
-    pContext->ClearRenderTargetView(pTarget.Get(), color);
+void Graphics::clearBuffer(float r, float g, float b) noexcept {
+	const float color[] = { r, g, b, 1.0f };
+	pContext->ClearRenderTargetView(pTarget.Get(), color);
+	pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void Graphics::drawTriangle(float angle, float x, float y) {
-    HRESULT cc;
-    struct Vertex {
-        struct {
-            float x, y;
-        } pos;
-        struct {
-            float r, g, b;
-        } color;
-    };
-    const Vertex v[] = {
-        { .0f, .5f, 1.0f, 0.0f, 0.0f },
-        { .5f, -.5f, 0.0f, 1.0f, 0.0f },
-        { -0.5f, -.5f, 0.0f, 0.0f, 1.0f },
-        { -.3f, .3f, 1.0f, 0.0f, 0.0f },
-        { .3f, .3f, 1.0f, 0.0f, 0.0f },
-        { .0f, -.8f, 1.0f, 0.0f, 0.0f },
-    };
-    wrl::ComPtr<ID3D11Buffer> pVertexBuf;
-    D3D11_BUFFER_DESC bd = {};
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.CPUAccessFlags = 0;
-    bd.MiscFlags = 0;
-    bd.ByteWidth = sizeof(v);
-    bd.StructureByteStride = sizeof(Vertex);
-    D3D11_SUBRESOURCE_DATA sd = {};
-    sd.pSysMem = v;
-    GFX_THROW_INFO(pDevice->CreateBuffer(&bd, &sd, &pVertexBuf));
+	HRESULT cc;
+	struct Vertex {
+		struct {
+			float x, y, z;
+		} pos;
+	};
+	const Vertex v[] = {
+		{ -1.0f, -1.0f, -1.0f },
+		{ 1.0f, -1.0f, -1.0f },
+		{ -1.0f, 1.0f, -1.0f },
+		{ 1.0f, 1.0f, -1.0f },
+		{ -1.0f, -1.0f, 1.0f },
+		{ 1.0f, -1.0f, 1.0f },
+		{ -1.0f, 1.0f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f},
+	};
+	wrl::ComPtr<ID3D11Buffer> pVertexBuf;
+	D3D11_BUFFER_DESC bd = {};
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.ByteWidth = sizeof(v);
+	bd.StructureByteStride = sizeof(Vertex);
+	D3D11_SUBRESOURCE_DATA sd = {};
+	sd.pSysMem = v;
+	GFX_THROW_INFO(pDevice->CreateBuffer(&bd, &sd, &pVertexBuf));
 
 
-    //Binding our vertex buffer to the rendering pipeline
-    const UINT stride = sizeof(Vertex);
-    const UINT offset = 0u;
-    pContext->IASetVertexBuffers(0u, 1u, pVertexBuf.GetAddressOf(), &stride, &offset);
+	//Binding our vertex buffer to the rendering pipeline
+	const UINT stride = sizeof(Vertex);
+	const UINT offset = 0u;
+	pContext->IASetVertexBuffers(0u, 1u, pVertexBuf.GetAddressOf(), &stride, &offset);
 
-    //Index buffer for indexed drawing
-    const unsigned short indices[] = {
-        0,1,2,
-        0,2,3,
-        0,4,1,
-        2,1,5,
-    };
-    wrl::ComPtr<ID3D11Buffer> indexBuf;
-    D3D11_BUFFER_DESC ibd;
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    ibd.Usage = D3D11_USAGE_DEFAULT;
-    ibd.CPUAccessFlags = 0;
-    ibd.MiscFlags = 0;
-    ibd.ByteWidth = sizeof(indices);
-    ibd.StructureByteStride = sizeof(unsigned short);
-    D3D11_SUBRESOURCE_DATA isd = {};
-    isd.pSysMem = indices;
-    GFX_THROW_INFO(pDevice->CreateBuffer(&ibd, &isd, &indexBuf));
-    pContext->IASetIndexBuffer(indexBuf.Get(), DXGI_FORMAT_R16_UINT, 0);
-
-
-    struct ConstBuffer {
-        dx::XMMATRIX transformation_matrix;
-    };
-    //https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
-    const ConstBuffer cb = {
-        {
-            dx::XMMatrixTranspose(
-                dx::XMMatrixRotationZ(angle) *
-                dx::XMMatrixScaling(0.75f, 1.0f, 1.0f) *
-                dx::XMMatrixTranslation(x, y, 0.0f))
-        }
-    };
-    wrl::ComPtr<ID3D11Buffer> pConstantBuf;
-    D3D11_BUFFER_DESC cbd;
-    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbd.Usage = D3D11_USAGE_DYNAMIC;
-    cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    cbd.MiscFlags = 0;
-    cbd.ByteWidth = sizeof(cb);
-    cbd.StructureByteStride = 0;
-    D3D11_SUBRESOURCE_DATA cbsd = {};
-    cbsd.pSysMem = &cb;
-    GFX_THROW_INFO(pDevice->CreateBuffer(&cbd, &cbsd, &pConstantBuf));
-    pContext->VSSetConstantBuffers(0, 1, pConstantBuf.GetAddressOf());
+	//Index buffer for indexed drawing
+	const unsigned short indices[] = {
+		0,2,1, 2,3,1,
+		1,3,5, 3,7,5,
+		2,6,3, 3,6,7,
+		4,5,7, 4,7,6,
+		0,4,2, 2,4,6,
+		0,1,4, 1,5,4
+	};
+	wrl::ComPtr<ID3D11Buffer> indexBuf;
+	D3D11_BUFFER_DESC ibd;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	ibd.ByteWidth = sizeof(indices);
+	ibd.StructureByteStride = sizeof(unsigned short);
+	D3D11_SUBRESOURCE_DATA isd = {};
+	isd.pSysMem = indices;
+	GFX_THROW_INFO(pDevice->CreateBuffer(&ibd, &isd, &indexBuf));
+	pContext->IASetIndexBuffer(indexBuf.Get(), DXGI_FORMAT_R16_UINT, 0);
 
 
-    //Pixel Shader
-    wrl::ComPtr<ID3D11PixelShader> pPixelShader;
-    wrl::ComPtr<ID3DBlob> pBlob;
-    D3DReadFileToBlob(L"PixelShader.cso", &pBlob);
-    GFX_THROW_INFO(pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
-    pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
+	struct ConstBuffer {
+		dx::XMMATRIX transformation_matrix;
+	};
+	//https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
+	const ConstBuffer cb = {
+		{
+			dx::XMMatrixTranspose(
+				dx::XMMatrixRotationZ(angle) *
+				dx::XMMatrixScaling(0.75f, 1.0f, 1.0f) *
+				dx::XMMatrixTranslation(x, y, 4.0f) *
+				dx::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 10.0f) //Matching aspect ratio
+			)
+		}
+	};
+	wrl::ComPtr<ID3D11Buffer> pConstantBuf;
+	D3D11_BUFFER_DESC cbd;
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd.Usage = D3D11_USAGE_DYNAMIC;
+	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbd.MiscFlags = 0;
+	cbd.ByteWidth = sizeof(cb);
+	cbd.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cbsd = {};
+	cbsd.pSysMem = &cb;
+	GFX_THROW_INFO(pDevice->CreateBuffer(&cbd, &cbsd, &pConstantBuf));
+	pContext->VSSetConstantBuffers(0, 1, pConstantBuf.GetAddressOf());
 
 
-    //Vertex shader
-    wrl::ComPtr<ID3D11VertexShader> pVertexShader;
-    //We reuse the pointer for blob as it is freed.
-    D3DReadFileToBlob(L"VertexShader.cso", &pBlob);
-    GFX_THROW_INFO(pDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
-    pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+	struct ConstBuffer2 {
+		struct {
+			float r, g, b, a;
+		} face_colors[6];
+	};
+
+	const ConstBuffer2 cb2 = {
+		{
+			{1.0f, 0.0f, 1.0f},
+			{1.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f},
+			{0.0f, 0.0f, 1.0f},
+			{1.0f, 1.0f, 0.0f},
+			{0.0f, 1.0f, 1.0f},
+		}
+	};
+	wrl::ComPtr<ID3D11Buffer> pConstantBuf2;
+	D3D11_BUFFER_DESC cbd2;
+	cbd2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd2.Usage = D3D11_USAGE_DEFAULT;
+	cbd2.CPUAccessFlags = 0;
+	cbd2.MiscFlags = 0;
+	cbd2.ByteWidth = sizeof(cb2);
+	cbd2.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA cbsd2 = {};
+	cbsd2.pSysMem = &cb2;
+	GFX_THROW_INFO(pDevice->CreateBuffer(&cbd2, &cbsd2, &pConstantBuf2));
+	pContext->PSSetConstantBuffers(0, 1, pConstantBuf2.GetAddressOf());
 
 
-    //Input vertex layout https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc
-    wrl::ComPtr<ID3D11InputLayout> pInputLayout;
-    const D3D11_INPUT_ELEMENT_DESC ied[] = {
-        //Disclaimer: this R32G32 doesn't have anything to do with color
-        {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-    GFX_THROW_INFO(pDevice->CreateInputLayout(ied, std::size(ied), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
 
-    pContext->IASetInputLayout(pInputLayout.Get());
-    pContext->OMSetRenderTargets(1u, pTarget.GetAddressOf(), nullptr); //Calling GetAdressOf makes sure the underlying pointer is not freed
+		//Pixel Shader
+	wrl::ComPtr<ID3D11PixelShader> pPixelShader;
+	wrl::ComPtr<ID3DBlob> pBlob;
+	D3DReadFileToBlob(L"PixelShader.cso", &pBlob);
+	GFX_THROW_INFO(pDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
+	pContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
-    //Setting primitive topology to triangle list: https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
-    pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    //Viewport configuration;
-    D3D11_VIEWPORT vp;
-    vp.Width = 1280;
-    vp.Height = 960;
-    vp.MinDepth = 0;
-    vp.MaxDepth = 1;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    pContext->RSSetViewports(1u, &vp);
+	//Vertex shader
+	wrl::ComPtr<ID3D11VertexShader> pVertexShader;
+	//We reuse the pointer for blob as it is freed.
+	D3DReadFileToBlob(L"VertexShader.cso", &pBlob);
+	GFX_THROW_INFO(pDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
+	pContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 
-    GFX_THROW_INFO_ONLY(pContext->DrawIndexed(std::size(indices), 0u, 0u));
+
+	//Input vertex layout https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc
+	wrl::ComPtr<ID3D11InputLayout> pInputLayout;
+	const D3D11_INPUT_ELEMENT_DESC ied[] = {
+		//Disclaimer: this R32G32B32 doesn't have anything to do with color
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	GFX_THROW_INFO(pDevice->CreateInputLayout(ied, std::size(ied), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
+
+	pContext->IASetInputLayout(pInputLayout.Get()); //Calling GetAdressOf makes sure the underlying pointer is not freed
+
+	//Setting primitive topology to triangle list: https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
+	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Viewport configuration;
+	D3D11_VIEWPORT vp;
+	vp.Width = SCREEN_W;
+	vp.Height = SCREEN_H;
+	vp.MinDepth = 0;
+	vp.MaxDepth = 1;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	pContext->RSSetViewports(1u, &vp);
+
+	GFX_THROW_INFO_ONLY(pContext->DrawIndexed(std::size(indices), 0u, 0u));
 }
 
 Graphics::HRESException::HRESException(int line, const char* file, HRESULT hr, std::vector<std::string> infoVec) noexcept : Exception(line, file), hr(hr) {
-    for (const auto& m : infoVec) {
-        info += m;
-        info.push_back('\n');
-    }
-    if (!info.empty()) {
-        info.pop_back();
-    }
+	for (const auto& m : infoVec) {
+		info += m;
+		info.push_back('\n');
+	}
+	if (!info.empty()) {
+		info.pop_back();
+	}
 }
 
 const char* Graphics::HRESException::what() const noexcept {
-    std::ostringstream oss;
-    oss << getType() << std::endl
-        << "[Error Code] 0x" << std::hex << getErrorCode()  << std::dec << "(" << getErrorCode() << ")" << std::endl
-        << "[Description] " << getErrorDescription() << std::endl
-        << getOriginString();
-    buf = oss.str();
-    return buf.c_str();
+	std::ostringstream oss;
+	oss << getType() << std::endl
+		<< "[Error Code] 0x" << std::hex << getErrorCode() << std::dec << "(" << getErrorCode() << ")" << std::endl
+		<< "[Description] " << getErrorDescription() << std::endl
+		<< getOriginString();
+	buf = oss.str();
+	return buf.c_str();
 }
 
 const char* Graphics::HRESException::getType() const noexcept {
-    return "Astra Engine Graphics Exception";
+	return "Astra Engine Graphics Exception";
 }
 
 HRESULT Graphics::HRESException::getErrorCode() const noexcept { return hr; }
 
 std::string Graphics::HRESException::getErrorDescription() const noexcept
 {
-    //Here normally we would use DXGetErrorString(), but Microsoft decided to get rid of the dxerr.h library so we have to make do 
-    //with the Windows alternative, so just FormatMessageA (it has to be the ANSI (narrow char) version).
-    //Now we also don't need the getErrorString function featured in dxerr.h
-    char* msgBuf = nullptr;
-    DWORD size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr,
-        hr,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR)&msgBuf,
-        0,
-        nullptr
-    );
+	//Here normally we would use DXGetErrorString(), but Microsoft decided to get rid of the dxerr.h library so we have to make do 
+	//with the Windows alternative, so just FormatMessageA (it has to be the ANSI (narrow char) version).
+	//Now we also don't need the getErrorString function featured in dxerr.h
+	char* msgBuf = nullptr;
+	DWORD size = FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr,
+		hr,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&msgBuf,
+		0,
+		nullptr
+	);
 
-    std::string msg = (size && msgBuf) ? std::string(msgBuf) : "Unidentified error code.";
-    if (msgBuf) {
-        LocalFree(msgBuf);
-    }
-    return msg;
+	std::string msg = (size && msgBuf) ? std::string(msgBuf) : "Unidentified error code.";
+	if (msgBuf) {
+		LocalFree(msgBuf);
+	}
+	return msg;
 }
 
 std::string Graphics::HRESException::getErrorInfo() const noexcept
 {
-    return info;
+	return info;
 }
 
 const char* Graphics::DeviceRemovedException::getType() const noexcept {
-    return "Astra Engine Exception: Device Removed (DXGI_ERROR_DEVICE_REMOVED)";
+	return "Astra Engine Exception: Device Removed (DXGI_ERROR_DEVICE_REMOVED)";
 }
 
 Graphics::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoVec) noexcept : Exception(line, file) {
-    for (const auto& m : infoVec) {
-        info += m;
-        info.push_back('\n');
-    }
-    if (!info.empty()) {
-        info.pop_back();
-    }
+	for (const auto& m : infoVec) {
+		info += m;
+		info.push_back('\n');
+	}
+	if (!info.empty()) {
+		info.pop_back();
+	}
 }
 
 const char* Graphics::InfoException::what() const noexcept
 {
-    std::ostringstream oss;
-    oss << getType() << std::endl
-        << "[Additional Info] " << getErrorInfo() << std::endl
-        << "[Description] " << getErrorDescription() << std::endl
-        << getOriginString();
-    buf = oss.str();
-    return buf.c_str();
+	std::ostringstream oss;
+	oss << getType() << std::endl
+		<< "[Additional Info] " << getErrorInfo() << std::endl
+		<< "[Description] " << getErrorDescription() << std::endl
+		<< getOriginString();
+	buf = oss.str();
+	return buf.c_str();
 }
 
 const char* Graphics::InfoException::getType() const noexcept
 {
-    return "Astra Engine - Info Exception";
+	return "Astra Engine - Info Exception";
 }
 
 std::string Graphics::InfoException::getErrorDescription() const noexcept
 {
-    char* msgBuf = nullptr;
-    DWORD size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr,
-        0,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR)&msgBuf,
-        0,
-        nullptr
-    );
+	char* msgBuf = nullptr;
+	DWORD size = FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr,
+		0,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&msgBuf,
+		0,
+		nullptr
+	);
 
-    std::string msg = (size && msgBuf) ? std::string(msgBuf) : "Unidentified error code.";
-    if (msgBuf) {
-        LocalFree(msgBuf);
-    }
-    return msg;
+	std::string msg = (size && msgBuf) ? std::string(msgBuf) : "Unidentified error code.";
+	if (msgBuf) {
+		LocalFree(msgBuf);
+	}
+	return msg;
 }
 
 std::string Graphics::InfoException::getErrorInfo() const noexcept
 {
-    return info;
+	return info;
 }
