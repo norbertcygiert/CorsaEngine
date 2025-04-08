@@ -7,6 +7,7 @@
 #include <vector>
 #include "DXGIInfoManager.h"
 namespace wrl = Microsoft::WRL;
+
 class Graphics {
 private:
 #ifndef NDEBUG
@@ -23,7 +24,7 @@ public:
 	~Graphics() = default;
 	void endFrame();
 	void clearBuffer(float r, float g, float b) noexcept;
-	void drawTriangle(float angle);
+	void drawTriangle(float angle, float x, float y);
 
 	class Exception : public AstraException
 	{

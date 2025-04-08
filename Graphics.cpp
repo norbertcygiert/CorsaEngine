@@ -1,11 +1,14 @@
 #include "Graphics.h"
 #include <sstream>
 #include <d3dcompiler.h>
+#include <DirectXMath.h>
 
 #pragma comment(lib, "d3d11.lib")  //We dont have to change the linker settings this way.
 #pragma comment(lib, "D3DCompiler.lib")
 
+
 namespace wrl = Microsoft::WRL;
+namespace dx = DirectX;
 
 //We need an HRESULT codecatcher in scope for these macros two work.
 #define GFX_EXCEPT_NOINFO(cc) Graphics::HRESException( __LINE__,__FILE__,(cc) )
@@ -90,7 +93,7 @@ void Graphics::clearBuffer(float r, float g, float b) noexcept{
     pContext->ClearRenderTargetView(pTarget.Get(), color);
 }
 
-void Graphics::drawTriangle(float angle) {
+void Graphics::drawTriangle(float angle, float x, float y) {
     HRESULT cc;
     struct Vertex {
         struct {
@@ -148,17 +151,15 @@ void Graphics::drawTriangle(float angle) {
 
 
     struct ConstBuffer {
-        struct {
-            float elem[4][4];
-        } transformation_matrix;
+        dx::XMMATRIX transformation_matrix;
     };
     //https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
     const ConstBuffer cb = {
         {
-            (0.75f)*std::cos(angle), std::sin(angle), .0f, .0f,
-            (0.75f)*-std::sin(angle), std::cos(angle), .0f, .0f,
-            .0f,            .0f,               1.0f, .0f,
-            .0f,            .0f,               .0f, 1.0f,
+            dx::XMMatrixTranspose(
+                dx::XMMatrixRotationZ(angle) *
+                dx::XMMatrixScaling(0.75f, 1.0f, 1.0f) *
+                dx::XMMatrixTranslation(x, y, 0.0f))
         }
     };
     wrl::ComPtr<ID3D11Buffer> pConstantBuf;
