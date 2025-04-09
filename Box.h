@@ -1,9 +1,8 @@
 #pragma once
-#include "Drawable.h"
+#include "DrawableBase.h"
 #include <memory>
 
-class Box : public Drawable
-{
+class Box : public DrawableBase<Box> {
 public:
 	Box(Graphics& gfx, std::mt19937& rng,
 		std::uniform_real_distribution<float>& adist,

@@ -5,7 +5,7 @@
 
 class TransformConstBuffer : public Bindable {
 private:
-	VertexConstantBuffer<DirectX::XMMATRIX> vcBuf;
+	static std::unique_ptr<VertexConstantBuffer<DirectX::XMMATRIX>> vcBuf;
 	const Drawable& parent;
 public:
 	TransformConstBuffer(Graphics& g, const Drawable& parent);
