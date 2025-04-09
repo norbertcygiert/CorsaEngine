@@ -1,4 +1,5 @@
 #include "DXGIInfoManager.h"
+#include "GraphicsMacros.h"
 #include "Window.h"
 #include "Graphics.h"
 #include <dxgidebug.h>
@@ -6,8 +7,6 @@
 
 #pragma comment(lib, "dxguid.lib")
 
-
-#define GRAPHICS_THROW_NOINFO(call) if( FAILED( cc = (call) ) ) throw Graphics::HRESException( __LINE__,__FILE__,cc, {})
 
 DXGIInfoManager::DXGIInfoManager()
 {

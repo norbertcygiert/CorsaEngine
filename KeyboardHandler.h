@@ -12,12 +12,12 @@ public:
 		enum Type {
 			DOWN, UP, INVALID
 		};
-		Event() : type(type), code(code) {};
+		Event():type(type), code(code){};
 		Event(Type type, unsigned char code) noexcept : type(type), code(code) {};
 		bool isDown() const noexcept { return type == Type::DOWN; }
 		bool isUp() const noexcept { return type == Type::UP; }
 		bool isValid() const noexcept { return type != Type::INVALID; }
-		unsigned char getCode() { return code; };
+		unsigned char getCode() const { return code; };
 	private:
 		Type type;
 		unsigned char code;

@@ -6,10 +6,17 @@
 #include <string>
 #include <vector>
 #include "DXGIInfoManager.h"
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <memory>
+#include <random>
 namespace wrl = Microsoft::WRL;
 #define SCREEN_W 1280
 #define SCREEN_H 960
+
+
 class Graphics {
+	friend class Bindable;
 private:
 #ifndef NDEBUG
 	DXGIInfoManager infoManager;
@@ -19,6 +26,7 @@ private:
 	wrl::ComPtr<ID3D11DeviceContext> pContext = nullptr;
 	wrl::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilView> pDSV = nullptr;
+	DirectX::XMMATRIX projection;
 
 public:
 	Graphics(HWND hWnd);
@@ -27,7 +35,9 @@ public:
 	~Graphics() = default;
 	void endFrame();
 	void clearBuffer(float r, float g, float b) noexcept;
-	void drawTriangle(float angle, float x, float y);
+	void drawIndexed(unsigned int count) noexcept (!IS_DEBUG);
+	void setProjection(DirectX::FXMMATRIX p) noexcept;
+	DirectX::XMMATRIX getProjection() const noexcept;
 
 	class Exception : public AstraException
 	{

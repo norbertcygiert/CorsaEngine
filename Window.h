@@ -4,14 +4,8 @@
 #include "KeyboardHandler.h"
 #include "MouseHandler.h"
 #include "Graphics.h"
-#include <memory>
+#include "WindowMacros.h"
 #include <optional>
-
-
-//helper macros
-#define WND_EXCEPTION(cc) Window::HRESException(__LINE__, __FILE__, cc)
-#define WND_LAST_EXCEPT() Window::HRESException(__LINE__,__FILE__, GetLastError())
-#define WND_NOGRAPHICS_EXCEPT() Window::NoGraphicsException(__LINE__, __FILE__);
 
 
 //https://en.wikipedia.org/wiki/Singleton_pattern for future reference
