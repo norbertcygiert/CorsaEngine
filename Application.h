@@ -4,10 +4,11 @@
 
 #define SCREEN_W 1280
 #define SCREEN_H 960
-
+static constexpr size_t nDrawables = 180;
 class Application {
 private:
 	Window wnd;
+	std::vector<std::unique_ptr<class Drawable>> drawables;
 	void frame(); //Being called on every frame
 public:
 	Application();

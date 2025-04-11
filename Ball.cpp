@@ -1,16 +1,17 @@
-#include "Box.h"
+#include "Ball.h"
 #include "BindableBase.h"
 #include "GraphicsMacros.h"
 #include "Sphere.h"
-#include "Cube.h"
-namespace dx = DirectX;
-Box::Box(Graphics& g,
+
+
+Ball::Ball(Graphics& g,
 	std::mt19937& rng,
 	std::uniform_real_distribution<float>& adist,
 	std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist,
 	std::uniform_real_distribution<float>& rdist,
-	std::uniform_real_distribution<float>& bdist )
+	std::uniform_int_distribution<int>& longdist,
+	std::uniform_int_distribution<int>& latdist)
 	:
 	r(rdist(rng)),
 	droll(ddist(rng)),
@@ -23,23 +24,17 @@ Box::Box(Graphics& g,
 	theta(adist(rng)),
 	phi(adist(rng))
 {
-	if (!isStaticInitialized()) {
-		struct Vertex {
-			dx::XMFLOAT3 pos;
-		};
-		const auto model = Cube::make<Vertex>();
+	namespace dx = DirectX;
 
-		addStaticBind(std::make_unique<VertexBuffer>(g, model.vertices));
-
+	if (!isStaticInitialized())
+	{
 		auto pvs = std::make_unique<VertexShader>(g, L"VertexShader.cso");
 		auto pvsbc = pvs->getBytecode();
 		addStaticBind(std::move(pvs));
 
 		addStaticBind(std::make_unique<PixelShader>(g, L"PixelShader.cso"));
 
-		addStaticIndexBuffer(std::make_unique<IndexBuffer>(g, model.indices));
-
-		struct PSConsts { //PixelShader constans
+		struct PSConsts {
 			struct {
 				float r;
 				float g;
@@ -65,14 +60,26 @@ Box::Box(Graphics& g,
 			{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
 		};
 		addStaticBind(std::make_unique<InputLayout>(g, ied, pvsbc));
+
 		addStaticBind(std::make_unique<Topology>(g, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	}
-	else setIndexFromStatic();
+
+	struct Vertex
+	{
+		dx::XMFLOAT3 pos;
+	};
+	auto model = Sphere::makeTesselated<Vertex>(latdist(rng), longdist(rng));
+	// deform vertices of model by linear transformation
+	model.Transform(dx::XMMatrixScaling(1.0f, 1.0f, 1.2f));
+
+	addBind(std::make_unique<VertexBuffer>(g, model.vertices));
+
+	addIndexBuffer(std::make_unique<IndexBuffer>(g, model.indices));
+
 	addBind(std::make_unique<TransformConstBuffer>(g, *this));
-	dx::XMStoreFloat3x3(&mt, dx::XMMatrixScaling(1.0f, 1.0f, bdist(rng)));
 }
 
-void Box::update(float dt) noexcept
+void Ball::update(float dt) noexcept
 {
 	roll += droll * dt;
 	pitch += dpitch * dt;
@@ -82,10 +89,10 @@ void Box::update(float dt) noexcept
 	chi += dchi * dt;
 }
 
-dx::XMMATRIX Box::getTransformXM() const noexcept
+dx::XMMATRIX Ball::getTransformXM() const noexcept
 {
-	return dx::XMLoadFloat3x3(&mt) *
-		dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
+	namespace dx = DirectX;
+	return dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
 		dx::XMMatrixTranslation(r, 0.0f, 0.0f) *
 		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi) *
 		dx::XMMatrixTranslation(0.0f, 0.0f, 20.0f);

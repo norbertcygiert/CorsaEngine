@@ -16,12 +16,12 @@ void Drawable::draw(Graphics& g) const noexcept(!IS_DEBUG)
 }
 
 void Drawable::addBind(std::unique_ptr<Bindable> bind) noexcept(!IS_DEBUG) {
-	assert("Must use addIndexBuffer() to bind index buffer" && typeid(*bind) != typeid(IndexBuffer));
+	assert(typeid(*bind) != typeid(IndexBuffer) && "Must use addIndexBuffer() to bind index buffer");
 	binds.push_back(std::move(bind));
 }
 
 void Drawable::addIndexBuffer(std::unique_ptr<IndexBuffer> ibuf) noexcept(!IS_DEBUG) {
-	assert("Attempting to add index buffer a second time" && pIndexBuffer == nullptr);
+	assert(pIndexBuffer == nullptr && "Attempting to add index buffer a second time");
 	pIndexBuffer = ibuf.get();
 	binds.push_back(std::move(ibuf));
 }

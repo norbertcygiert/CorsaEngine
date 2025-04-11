@@ -1,19 +1,19 @@
 #pragma once
 #include "DrawableBase.h"
-#include <memory>
 
-class Box : public DrawableBase<Box> {
+class Ball : public DrawableBase<Ball> {
 public:
-	Box(Graphics& gfx, std::mt19937& rng,
+	Ball(Graphics& gfx, std::mt19937& rng,
 		std::uniform_real_distribution<float>& adist,
 		std::uniform_real_distribution<float>& ddist,
 		std::uniform_real_distribution<float>& odist,
 		std::uniform_real_distribution<float>& rdist,
-		std::uniform_real_distribution<float>& bdist);
+		std::uniform_int_distribution<int>& longdist,
+		std::uniform_int_distribution<int>& latdist);
 	void update(float dt) noexcept override;
 	DirectX::XMMATRIX getTransformXM() const noexcept override;
 private:
-	// positional
+	// Position
 	float r;
 	float roll = 0.0f;
 	float pitch = 0.0f;
@@ -21,12 +21,11 @@ private:
 	float theta;
 	float phi;
 	float chi;
-	// speed (delta/s)
+	// Speed (delta/s)
 	float droll;
 	float dpitch;
 	float dyaw;
 	float dtheta;
 	float dphi;
 	float dchi;
-	DirectX::XMFLOAT3X3 mt;
 };

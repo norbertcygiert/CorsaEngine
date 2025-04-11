@@ -1,4 +1,4 @@
-cbuffer CBuf {
+cbuffer CBUF {
 	matrix transformation_matrix;
 }
 
