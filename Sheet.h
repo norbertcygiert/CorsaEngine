@@ -1,15 +1,14 @@
 #pragma once
 #include "DrawableBase.h"
 
-class Ball : public DrawableBase<Ball> {
+class Sheet : public DrawableBase<Sheet>
+{
 public:
-	Ball(Graphics& gfx, std::default_random_engine& rng,
+	Sheet(Graphics& gfx, std::mt19937& rng,
 		std::uniform_real_distribution<float>& adist,
 		std::uniform_real_distribution<float>& ddist,
 		std::uniform_real_distribution<float>& odist,
-		std::uniform_real_distribution<float>& rdist,
-		std::uniform_int_distribution<int>& longdist,
-		std::uniform_int_distribution<int>& latdist);
+		std::uniform_real_distribution<float>& rdist);
 	void update(float dt) noexcept override;
 	DirectX::XMMATRIX getTransformXM() const noexcept override;
 private:

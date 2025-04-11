@@ -1,5 +1,4 @@
-cbuffer CBuf 
-{
+cbuffer CBUF {
 	float4 face_colors[8];
 };
 

@@ -3,9 +3,9 @@
 #include "GraphicsMacros.h"
 #include "Sphere.h"
 
+namespace dx = DirectX;
 
-Ball::Ball(Graphics& g,
-	std::mt19937& rng,
+Ball::Ball(Graphics& g, std::default_random_engine& rng,
 	std::uniform_real_distribution<float>& adist,
 	std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist,
@@ -24,10 +24,7 @@ Ball::Ball(Graphics& g,
 	theta(adist(rng)),
 	phi(adist(rng))
 {
-	namespace dx = DirectX;
-
-	if (!isStaticInitialized())
-	{
+	if (!isStaticInitialized()) {
 		auto pvs = std::make_unique<VertexShader>(g, L"VertexShader.cso");
 		auto pvsbc = pvs->getBytecode();
 		addStaticBind(std::move(pvs));
@@ -64,12 +61,11 @@ Ball::Ball(Graphics& g,
 		addStaticBind(std::make_unique<Topology>(g, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	}
 
-	struct Vertex
-	{
+	struct Vertex {
 		dx::XMFLOAT3 pos;
 	};
 	auto model = Sphere::makeTesselated<Vertex>(latdist(rng), longdist(rng));
-	// deform vertices of model by linear transformation
+	// Deforming the vertices of model by linear transformation
 	model.Transform(dx::XMMatrixScaling(1.0f, 1.0f, 1.2f));
 
 	addBind(std::make_unique<VertexBuffer>(g, model.vertices));
@@ -79,8 +75,7 @@ Ball::Ball(Graphics& g,
 	addBind(std::make_unique<TransformConstBuffer>(g, *this));
 }
 
-void Ball::update(float dt) noexcept
-{
+void Ball::update(float dt) noexcept {
 	roll += droll * dt;
 	pitch += dpitch * dt;
 	yaw += dyaw * dt;
@@ -89,9 +84,7 @@ void Ball::update(float dt) noexcept
 	chi += dchi * dt;
 }
 
-dx::XMMATRIX Ball::getTransformXM() const noexcept
-{
-	namespace dx = DirectX;
+dx::XMMATRIX Ball::getTransformXM() const noexcept {
 	return dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
 		dx::XMMatrixTranslation(r, 0.0f, 0.0f) *
 		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi) *

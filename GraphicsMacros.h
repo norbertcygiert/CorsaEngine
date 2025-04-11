@@ -9,7 +9,7 @@
 
 #ifndef NDEBUG
 
-#define INFO_INSERT(g) HRESULT cc; DXGIInfoManager& infoManager = getInfoManager((g))
+#define INSERT_CODECATCHER(g) HRESULT cc; DXGIInfoManager& infoManager = getInfoManager((g))
 #define GFX_EXCEPT(cc) Graphics::HRESException( __LINE__,__FILE__,(cc),infoManager.getMessages() )
 #define GFX_THROW_INFO(call) infoManager.set(); if( FAILED( cc = (call) ) ) throw GFX_EXCEPT(cc)
 #define GFX_DEVICE_REMOVED_EXCEPT(cc) Graphics::DeviceRemovedException( __LINE__,__FILE__,(cc),infoManager.getMessages() )

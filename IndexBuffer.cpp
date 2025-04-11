@@ -2,7 +2,7 @@
 #include "GraphicsMacros.h"
 
 IndexBuffer::IndexBuffer(Graphics& g, const std::vector<unsigned short>& indices) : count((unsigned int) indices.size()) {
-	INFO_INSERT(g);
+	INSERT_CODECATCHER(g);
 
 	D3D11_BUFFER_DESC ibd = {};
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;

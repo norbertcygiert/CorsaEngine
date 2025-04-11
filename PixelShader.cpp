@@ -3,7 +3,7 @@
 
 PixelShader::PixelShader(Graphics& g, const std::wstring& path)
 {
-	INFO_INSERT(g);
+	INSERT_CODECATCHER(g);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
 	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &pBlob));

@@ -39,15 +39,13 @@ public:
 	void setProjection(DirectX::FXMMATRIX p) noexcept;
 	DirectX::XMMATRIX getProjection() const noexcept;
 
-	class Exception : public AstraException
-	{
+	class Exception : public AstraException {
 		using AstraException::AstraException;
 	public:
 		static std::string translateErrorCode(HRESULT hr) noexcept;
 	};
 
-	class HRESException : public Exception
-	{
+	class HRESException : public Exception {
 	public:
 		HRESException(int line, const char* file, HRESULT hr, std::vector<std::string> infoVec) noexcept;
 		const char* what() const noexcept override;
@@ -60,8 +58,7 @@ public:
 		std::string info;
 	};
 
-	class InfoException : public Exception
-	{
+	class InfoException : public Exception {
 	public:
 		InfoException(int line, const char* file, std::vector<std::string> infoVec) noexcept;
 		const char* what() const noexcept override;

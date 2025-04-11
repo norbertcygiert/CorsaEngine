@@ -8,7 +8,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pConstantBuffer;
 public:
 	void update(Graphics& g, const T& consts) {
-		INFO_INSERT(g);
+		INSERT_CODECATCHER(g);
 
 		D3D11_MAPPED_SUBRESOURCE msr;
 		GFX_THROW_INFO(getContext(g)->Map(
@@ -20,7 +20,7 @@ public:
 		getContext(g)->Unmap(pConstantBuffer.Get(), 0u);
 	}
 	ConstantBuffer(Graphics& g, const T& consts) {
-		INFO_INSERT(g);
+		INSERT_CODECATCHER(g);
 
 		D3D11_BUFFER_DESC cbd;
 		cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -35,7 +35,7 @@ public:
 		GFX_THROW_INFO(getDevice(g)->CreateBuffer(&cbd, &csd, &pConstantBuffer));
 	}
 	ConstantBuffer(Graphics& g) {
-		INFO_INSERT(g);
+		INSERT_CODECATCHER(g);
 
 		D3D11_BUFFER_DESC cbd;
 		cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;

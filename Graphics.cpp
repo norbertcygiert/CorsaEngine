@@ -95,7 +95,6 @@ Graphics::Graphics(HWND hWnd) {
 	vp.TopLeftX = 0.0f;
 	vp.TopLeftY = 0.0f;
 	pContext->RSSetViewports(1u, &vp);
-
 }
 
 
@@ -104,9 +103,8 @@ void Graphics::endFrame() {
 #ifndef NDEBUG
 	infoManager.set();
 #endif // !NDEBUG
-
-	if (FAILED(cc = pSwap->Present(1u, 0u))) //Syncinterval is basically the value which our device framerate will be divided by, giving us the target FR.
-	{
+	//Syncinterval is basically the value which our device framerate will be divided by, giving us the target FR.
+	if (FAILED(cc = pSwap->Present(1u, 0u))) {
 		if (cc == DXGI_ERROR_DEVICE_REMOVED) {
 			throw GFX_DEVICE_REMOVED_EXCEPT(pDevice->GetDeviceRemovedReason());
 		}
@@ -126,7 +124,7 @@ void Graphics::drawIndexed(unsigned int count) noexcept (!IS_DEBUG) {
 
 void Graphics::setProjection(DirectX::FXMMATRIX p) noexcept{ projection = p; }
 
-DirectX::XMMATRIX Graphics::getProjection() const noexcept { return projection; }
+dx::XMMATRIX Graphics::getProjection() const noexcept { return projection; }
 
 Graphics::HRESException::HRESException(int line, const char* file, HRESULT hr, std::vector<std::string> infoVec) noexcept : Exception(line, file), hr(hr) {
 	for (const auto& m : infoVec) {
@@ -196,8 +194,7 @@ Graphics::InfoException::InfoException(int line, const char* file, std::vector<s
 	}
 }
 
-const char* Graphics::InfoException::what() const noexcept
-{
+const char* Graphics::InfoException::what() const noexcept {
 	std::ostringstream oss;
 	oss << getType() << std::endl
 		<< "[Additional Info] " << getErrorInfo() << std::endl
@@ -207,13 +204,9 @@ const char* Graphics::InfoException::what() const noexcept
 	return buf.c_str();
 }
 
-const char* Graphics::InfoException::getType() const noexcept
-{
-	return "Astra Engine - Info Exception";
-}
+const char* Graphics::InfoException::getType() const noexcept { return "Astra Engine - Info Exception"; }
 
-std::string Graphics::InfoException::getErrorDescription() const noexcept
-{
+std::string Graphics::InfoException::getErrorDescription() const noexcept {
 	char* msgBuf = nullptr;
 	DWORD size = FormatMessageA(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -232,7 +225,4 @@ std::string Graphics::InfoException::getErrorDescription() const noexcept
 	return msg;
 }
 
-std::string Graphics::InfoException::getErrorInfo() const noexcept
-{
-	return info;
-}
+std::string Graphics::InfoException::getErrorInfo() const noexcept { return info; }

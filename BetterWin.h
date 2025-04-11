@@ -8,7 +8,7 @@
 //Things that we DO in fact need are commented out.
 //For reference on this ctrl + click <Windows.h>
 
-
+#ifndef INCLUDE_ALL_WIN
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS
 //#define NOVIRTUALKEYCODES
@@ -33,7 +33,6 @@
 //#define NOMB // MB_ * and MessageBox()
 #define NOMEMMGR //- GMEM_*, LMEM_*, GHND, LHND, associated routines
 #define NOMETAFILE
-#define NOMINMAX  //Macros min(a, b) and max(a, b)
 //#define NOMSG // typedef MSG and associated routines
 #define NOOPENFILE //- OpenFile(), OemToAnsi, AnsiToOem, and OF_*
 #define NOSCROLL //- SB_ * and scrolling routines
@@ -52,7 +51,9 @@
 #define NOPROXYSTUB
 #define NOIMAGE
 #define NOTAPE
+#endif
+
+#define NOMINMAX
 
 #define STRICT
-
 #include <Windows.h>

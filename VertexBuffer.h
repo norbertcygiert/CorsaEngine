@@ -9,7 +9,7 @@ protected:
 public:
 	template<class T>
 	VertexBuffer(Graphics& g, const std::vector<T>& vertices) : stride(sizeof(T)) {
-		INFO_INSERT(g);
+		INSERT_CODECATCHER(g);
 		D3D11_BUFFER_DESC bd = {};
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.Usage = D3D11_USAGE_DEFAULT;

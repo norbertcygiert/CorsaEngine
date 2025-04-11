@@ -1,15 +1,18 @@
-#include "Box.h"
+#include "Sheet.h"
 #include "BindableBase.h"
 #include "GraphicsMacros.h"
-#include "Sphere.h"
-#include "Cube.h"
+#include "Plane.h"
+#include "Surface.h"
+#include "Texture.h"
+#include "Sampler.h"
+
 namespace dx = DirectX;
-Box::Box(Graphics& g, std::default_random_engine& rng,
+
+Sheet::Sheet(Graphics& g, std::default_random_engine& rng,
 	std::uniform_real_distribution<float>& adist,
 	std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist,
-	std::uniform_real_distribution<float>& rdist,
-	std::uniform_real_distribution<float>& bdist )
+	std::uniform_real_distribution<float>& rdist)
 	:
 	r(rdist(rng)),
 	droll(ddist(rng)),
@@ -22,57 +25,49 @@ Box::Box(Graphics& g, std::default_random_engine& rng,
 	theta(adist(rng)),
 	phi(adist(rng))
 {
+
 	if (!isStaticInitialized()) {
 		struct Vertex {
 			dx::XMFLOAT3 pos;
+			struct { 
+				float u;
+				float v;
+			} tex;
 		};
-		const auto model = Cube::make<Vertex>();
+		auto model = Plane::make<Vertex>();
+		model.vertices[0].tex = { 0.0f,0.0f };
+		model.vertices[1].tex = { 1.0f,0.0f };
+		model.vertices[2].tex = { 0.0f,1.0f };
+		model.vertices[3].tex = { 1.0f,1.0f };
+
+		addStaticBind(std::make_unique<Texture>(g, Surface::fromFile("Assets\\ketchup.png")));
 
 		addStaticBind(std::make_unique<VertexBuffer>(g, model.vertices));
 
-		auto pvs = std::make_unique<VertexShader>(g, L"VertexShader.cso");
+		addStaticBind(std::make_unique<Sampler>(g));
+
+		auto pvs = std::make_unique<VertexShader>(g, L"VertexShaderTexture.cso");
 		auto pvsbc = pvs->getBytecode();
 		addStaticBind(std::move(pvs));
 
-		addStaticBind(std::make_unique<PixelShader>(g, L"PixelShader.cso"));
+		addStaticBind(std::make_unique<PixelShader>(g, L"PixelShaderTexture.cso"));
 
 		addStaticIndexBuffer(std::make_unique<IndexBuffer>(g, model.indices));
 
-		struct PSConsts { //PixelShader constans
-			struct {
-				float r;
-				float g;
-				float b;
-				float a;
-			} face_colors[8];
-		};
-		const PSConsts cb2 = {
-			{
-				{ 1.0f,1.0f,1.0f },
-				{ 1.0f,0.0f,0.0f },
-				{ 0.0f,1.0f,0.0f },
-				{ 1.0f,1.0f,0.0f },
-				{ 0.0f,0.0f,1.0f },
-				{ 1.0f,0.0f,1.0f },
-				{ 0.0f,1.0f,1.0f },
-				{ 0.0f,0.0f,0.0f },
-			}
-		};
-		addStaticBind(std::make_unique<PixelConstantBuffer<PSConsts>>(g, cb2));
-
 		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied = {
 			{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
+			{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0 },
 		};
 		addStaticBind(std::make_unique<InputLayout>(g, ied, pvsbc));
+
 		addStaticBind(std::make_unique<Topology>(g, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	}
 	else setIndexFromStatic();
+
 	addBind(std::make_unique<TransformConstBuffer>(g, *this));
-	dx::XMStoreFloat3x3(&mt, dx::XMMatrixScaling(1.0f, 1.0f, bdist(rng)));
 }
 
-void Box::update(float dt) noexcept
-{
+void Sheet::update(float dt) noexcept {
 	roll += droll * dt;
 	pitch += dpitch * dt;
 	yaw += dyaw * dt;
@@ -81,10 +76,8 @@ void Box::update(float dt) noexcept
 	chi += dchi * dt;
 }
 
-dx::XMMATRIX Box::getTransformXM() const noexcept
-{
-	return dx::XMLoadFloat3x3(&mt) *
-		dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
+dx::XMMATRIX Sheet::getTransformXM() const noexcept {
+	return dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
 		dx::XMMatrixTranslation(r, 0.0f, 0.0f) *
 		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi) *
 		dx::XMMatrixTranslation(0.0f, 0.0f, 20.0f);

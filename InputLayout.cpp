@@ -2,7 +2,7 @@
 #include "GraphicsMacros.h"
 
 InputLayout::InputLayout(Graphics& g, const std::vector<D3D11_INPUT_ELEMENT_DESC>& layout, ID3DBlob* pVertexShaderBytecode){
-	INFO_INSERT(g);
+	INSERT_CODECATCHER(g);
 	GFX_THROW_INFO(getDevice(g)->CreateInputLayout(
 		layout.data(), (UINT)layout.size(),
 		pVertexShaderBytecode->GetBufferPointer(),

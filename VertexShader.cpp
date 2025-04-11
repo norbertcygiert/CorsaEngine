@@ -2,7 +2,7 @@
 #include "GraphicsMacros.h"
 
 VertexShader::VertexShader(Graphics& g, const std::wstring& path) {
-	INFO_INSERT(g);
+	INSERT_CODECATCHER(g);
 	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &pBytecodeBlob));
 	GFX_THROW_INFO(getDevice(g)->CreateVertexShader(
 		pBytecodeBlob->GetBufferPointer(),

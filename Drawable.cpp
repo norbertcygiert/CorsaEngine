@@ -4,8 +4,7 @@
 #include <cassert>
 #include <typeinfo>
 
-void Drawable::draw(Graphics& g) const noexcept(!IS_DEBUG)
-{
+void Drawable::draw(Graphics& g) const noexcept(!IS_DEBUG) {
 	for (auto& b : binds) {
 		b->bind(g);
 	}
