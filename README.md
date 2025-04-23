@@ -20,19 +20,18 @@
 - [ ] Mipmapping<br>
 - [ ] Anisotropic Filtering<br>
 - [ ] Alpha Blending / Transparency <br>
-<b>...</b><br>
+<b>...</b>
 
-## Usage 
-No usage for now, I don't really see a point of releasing and unfinished engine.
-Usage will probably be added when it's complete.
-<br>
-
-## Based on:
-### Chili's "C++ 3D DirectX Programming" Tutorial Series
+## Based on: Chili's "C++ 3D DirectX Programming" Tutorial Series
 Huge thanks to the original author as this project wouldn't be possible without this tutorial series.
 - https://wiki.planetchili.net <br>
 - https://www.youtube.com/playlist?list=PLqCJpWy5Fohd3S7ICFXwUomYW0Wv67pDD<br>
 - https://github.com/planetchili/hw3d<br>
+
+
+## Usage 
+No usage for now, I don't really see a point of releasing and unfinished engine.
+Usage will probably be added when it's complete.
 <br>
 
 ## References
@@ -43,7 +42,7 @@ Huge thanks to the original author as this project wouldn't be possible without 
 - https://www.assimp.org/
 ### Microsoft's Official DirectX Documentation
 - https://learn.microsoft.com/en-us/windows/win32/direct3d
-<br>
+
 
 ## Motivation
 The motivation behind creating this was to help me understand GPU pipelining and familiarize with the overall schematics of low-level GPU Programming. 
