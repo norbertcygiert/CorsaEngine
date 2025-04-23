@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Window.h"
+#include "imgui_wrapper.h"
 
 #define SCREEN_W 1280
 #define SCREEN_H 960
 static constexpr size_t nDrawables = 180;
 class Application {
 private:
+	IMGUIWrapper imgui;
 	Window wnd;
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	void frame(); //Being called on every frame

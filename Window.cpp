@@ -1,5 +1,7 @@
 #include "Window.h"
 #include <sstream>
+#include "imgui/imgui_impl_win32.h"
+
 Window::WndClass Window::WndClass::wndClass;
 
 Window::WndClass::WndClass() noexcept : hInstance(GetModuleHandle(nullptr)) {
@@ -20,7 +22,11 @@ Window::WndClass::WndClass() noexcept : hInstance(GetModuleHandle(nullptr)) {
 	RegisterClassEx(&wc);
 }
 
-Window::~Window() { DestroyWindow(hWnd); }
+Window::~Window() { 
+	ImGui_ImplWin32_Shutdown(); 
+	DestroyWindow(hWnd);
+}
+
 Window::WndClass::~WndClass() { UnregisterClass(wndClassName, getInstance()); }
 const char* Window::WndClass::getName() noexcept { return wndClassName; }
 HINSTANCE Window::WndClass::getInstance() noexcept { return wndClass.hInstance; }
@@ -48,6 +54,9 @@ Window::Window(int w, int h, const char* name) : w(w), h(h) {
 		throw WND_LAST_EXCEPT();
 	}
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
+
+	ImGui_ImplWin32_Init(hWnd);
+
 	//Create a graphics object
 	graphics = std::make_unique<Graphics>(hWnd);
 }
@@ -95,6 +104,10 @@ LRESULT __stdcall Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPA
 }
 
 LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)){
+		return true;
+	}
+	
 	switch (msg) {
 	case WM_CLOSE:
 		PostQuitMessage(0);

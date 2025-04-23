@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <random>
 #include "GDIPlus.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 GDIPlus gdi;
 
@@ -44,7 +47,7 @@ Application::Application() : wnd(SCREEN_W, SCREEN_H, "AstraEngine") {
 					odist, rdist
 				);
 			default:
-				assert(false && "Wrong drawable type passed into the Factory");
+				assert(false && "Application.cpp: Wrong drawable type passed into the Factory");
 				return {};
 			}
 		}
@@ -67,8 +70,21 @@ void Application::frame() {
 		d->update(wnd.keybd.keyDown(VK_SPACE) ? .0f : 0.01f); //Press space to pause
 		d->draw(wnd.accessGraphics());
 	}
+	//ImGui
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	static bool show = true;
+	if (show) {
+		ImGui::ShowDemoWindow(&show);
+	}
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	//
 	wnd.accessGraphics().endFrame();
 }
+
 int Application::start() {
 	while (true) {
 		if (const auto ecode = Window::ProcessMessages()) {
