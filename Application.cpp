@@ -14,7 +14,7 @@
 
 GDIPlus gdi;
 
-Application::Application() : wnd(SCREEN_W, SCREEN_H, "AstraEngine") {
+Application::Application() : wnd(SCREEN_W, SCREEN_H, "CorsaEngine") {
 	class Factory {
 	private:
 		Graphics& g;

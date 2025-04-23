@@ -45,9 +45,8 @@ public:
 	static std::optional<int> ProcessMessages();
 	Graphics& accessGraphics();
 
-	class Exception : public AstraException
-	{
-		using AstraException::AstraException;
+	class Exception : public CorsaException {
+		using CorsaException::CorsaException;
 	public:
 		static std::string translateErrorCode(HRESULT hr) noexcept;
 	};

@@ -1,4 +1,4 @@
-#include "imgui_wrapper.h"
+#include "ImGuiWrapper.h"
 #include "imgui/imgui.h"
 
 IMGUIWrapper::IMGUIWrapper() {

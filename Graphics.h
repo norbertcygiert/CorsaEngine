@@ -39,8 +39,8 @@ public:
 	void setProjection(DirectX::FXMMATRIX p) noexcept;
 	DirectX::XMMATRIX getProjection() const noexcept;
 
-	class Exception : public AstraException {
-		using AstraException::AstraException;
+	class Exception : public CorsaException {
+		using CorsaException::CorsaException;
 	public:
 		static std::string translateErrorCode(HRESULT hr) noexcept;
 	};

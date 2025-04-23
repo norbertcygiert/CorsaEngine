@@ -2,9 +2,9 @@
 #include <exception>
 #include <string>
 
-class AstraException : public std::exception { //Create our wrapper around the std::exception class
+class CorsaException : public std::exception { //Create our wrapper around the std::exception class
 public:
-	AstraException(int line, const char* file) noexcept;
+	CorsaException(int line, const char* file) noexcept;
 	const char* what() const noexcept override;
 	virtual const char* getType() const noexcept;
 	int getLine() const noexcept;

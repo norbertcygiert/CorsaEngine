@@ -151,7 +151,7 @@ const char* Graphics::HRESException::what() const noexcept {
 }
 
 const char* Graphics::HRESException::getType() const noexcept {
-	return "Astra Engine Graphics Exception";
+	return "Corsa Engine: Graphics Exception";
 }
 
 HRESULT Graphics::HRESException::getErrorCode() const noexcept { return hr; }
@@ -185,7 +185,7 @@ std::string Graphics::HRESException::getErrorInfo() const noexcept
 }
 
 const char* Graphics::DeviceRemovedException::getType() const noexcept {
-	return "Astra Engine Exception: Device Removed (DXGI_ERROR_DEVICE_REMOVED)";
+	return "Corsa Engine: Device Removed (DXGI_ERROR_DEVICE_REMOVED) Exception";
 }
 
 Graphics::InfoException::InfoException(int line, const char* file, std::vector<std::string> infoVec) noexcept : Exception(line, file) {
@@ -208,7 +208,7 @@ const char* Graphics::InfoException::what() const noexcept {
 	return buf.c_str();
 }
 
-const char* Graphics::InfoException::getType() const noexcept { return "Astra Engine - Info Exception"; }
+const char* Graphics::InfoException::getType() const noexcept { return "Corsa Engine: Info Exception"; }
 
 std::string Graphics::InfoException::getErrorDescription() const noexcept {
 	char* msgBuf = nullptr;

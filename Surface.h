@@ -34,7 +34,7 @@ public:
 		void setB(unsigned char b) noexcept { DWORD32 = (DWORD32 & 0xFFFFFF00u) | b; }
 	};
 public:
-	class Exception : public AstraException {
+	class Exception : public CorsaException {
 	private:
 		std::string note;
 	public:

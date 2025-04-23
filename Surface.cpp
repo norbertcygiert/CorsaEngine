@@ -153,15 +153,15 @@ void Surface::copy(const Surface& src) noexcept(!IS_DEBUG) {
 Surface::Surface(unsigned int width, unsigned int height, std::unique_ptr<Color[]> pBufferParam) noexcept : width(width), height(height), pBuffer(std::move(pBufferParam)){}
 
 // Exceptions
-Surface::Exception::Exception(int line, const char* file, std::string note) noexcept : AstraException(line, file), note(std::move(note)) {}
+Surface::Exception::Exception(int line, const char* file, std::string note) noexcept : CorsaException(line, file), note(std::move(note)) {}
 
 const char* Surface::Exception::what() const noexcept {
 	std::ostringstream oss;
-	oss << AstraException::what() << std::endl
+	oss << CorsaException::what() << std::endl
 		<< "[Note] " << getNote();
 	buf = oss.str();
 	return buf.c_str();
 }
 
-const char* Surface::Exception::getType() const noexcept { return "Astra Engine - Surface Graphics Exception"; }
+const char* Surface::Exception::getType() const noexcept { return "Corsa Engine: Surface Graphics Exception"; }
 const std::string& Surface::Exception::getNote() const noexcept { return note; }

@@ -10,7 +10,7 @@ int __stdcall WinMain(
 	try {
 		return Application{}.start();
 	}
-	catch (const AstraException& e) {
+	catch (const CorsaException& e) {
 		MessageBox(nullptr, e.what(), e.getType(), MB_TASKMODAL | MB_OK | MB_ICONERROR);
 	}
 	catch (const std::exception& e) {

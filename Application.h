@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Window.h"
-#include "imgui_wrapper.h"
+#include "ImGuiWrapper.h"
 
 #define SCREEN_W 1280
 #define SCREEN_H 960

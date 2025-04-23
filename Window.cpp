@@ -192,11 +192,11 @@ const char* Window::HRESException::what() const noexcept {
 }
 
 Window::HRESException::HRESException(int line, const char* file, HRESULT hr) noexcept : Exception(line, file), hr(hr) {}
-const char* Window::HRESException::getType() const noexcept { return "Window HRESException"; }
+const char* Window::HRESException::getType() const noexcept { return "Corsa Engine: Window HRESException"; }
 HRESULT Window::HRESException::getErrorCode() const noexcept { return hr; }
 std::string Window::HRESException::getErrorDescription() const noexcept { return Exception::translateErrorCode(hr); }
 
 const char* Window::NoGraphicsException::getType() const noexcept
 {
-	return "Astra Engine: No Graphics Exception";
+	return "Corsa Engine: No Graphics Exception";
 }
