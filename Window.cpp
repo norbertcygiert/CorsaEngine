@@ -196,7 +196,7 @@ const char* Window::HRESException::getType() const noexcept { return "Corsa Engi
 HRESULT Window::HRESException::getErrorCode() const noexcept { return hr; }
 std::string Window::HRESException::getErrorDescription() const noexcept { return Exception::translateErrorCode(hr); }
 
-const char* Window::NoGraphicsException::getType() const noexcept
+const char* Window::NoGraphicsException::getType() const noexcept 
 {
 	return "Corsa Engine: No Graphics Exception";
 }

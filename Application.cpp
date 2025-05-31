@@ -9,8 +9,6 @@
 #include <random>
 #include "GDIPlus.h"
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
 
 GDIPlus gdi;
 
@@ -65,23 +63,17 @@ Application::Application() : wnd(SCREEN_W, SCREEN_H, "CorsaEngine") {
 Application::~Application() {};
 
 void Application::frame() {
-	wnd.accessGraphics().clearBuffer(0.07f, .0f, .12f);
+
+	wnd.accessGraphics().beginFrame(0.07f, .0f, .12f);
 	for (auto& d : drawables) {
 		d->update(wnd.keybd.keyDown(VK_SPACE) ? .0f : 0.01f); //Press space to pause
 		d->draw(wnd.accessGraphics());
 	}
-	//ImGui
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 
-	static bool show = true;
-	if (show) {
-		ImGui::ShowDemoWindow(&show);
+	if (show_imgui_demo) {
+		ImGui::ShowDemoWindow(&show_imgui_demo);
 	}
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	//
+	
 	wnd.accessGraphics().endFrame();
 }
 

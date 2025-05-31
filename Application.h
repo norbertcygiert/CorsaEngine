@@ -17,4 +17,5 @@ public:
 	~Application();
 	int start(); //Initializing the application
 	std::vector<std::unique_ptr<class Box>> boxes;
+	bool show_imgui_demo = true;
 };

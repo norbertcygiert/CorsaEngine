@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include "GraphicsMacros.h"
 #include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
 
 
 #pragma comment(lib, "d3d11.lib")  //We dont have to change the linker settings this way.
@@ -103,6 +104,10 @@ Graphics::Graphics(HWND hWnd) {
 
 
 void Graphics::endFrame() {
+	if (ImGuiEnabled) {
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
 	HRESULT cc;
 #ifndef NDEBUG
 	infoManager.set();
@@ -116,7 +121,14 @@ void Graphics::endFrame() {
 	}
 }
 
-void Graphics::clearBuffer(float r, float g, float b) noexcept {
+void Graphics::beginFrame(float r, float g, float b) noexcept {
+
+	if (ImGuiEnabled) {
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+	}
+
 	const float color[] = { r, g, b, 1.0f };
 	pContext->ClearRenderTargetView(pTarget.Get(), color);
 	pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -124,6 +136,18 @@ void Graphics::clearBuffer(float r, float g, float b) noexcept {
 
 void Graphics::drawIndexed(unsigned int count) noexcept (!IS_DEBUG) {
 	GFX_THROW_INFO_ONLY(pContext->DrawIndexed(count, 0, 0));
+}
+
+void Graphics::enableImGui() noexcept {
+	ImGuiEnabled = true;
+}
+
+void Graphics::disableImGui() noexcept {
+	ImGuiEnabled = false;
+}
+
+bool Graphics::isImGuiEnabled() const noexcept {
+	return ImGuiEnabled;
 }
 
 void Graphics::setProjection(DirectX::FXMMATRIX p) noexcept{ projection = p; }

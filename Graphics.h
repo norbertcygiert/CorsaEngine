@@ -27,6 +27,7 @@ private:
 	wrl::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilView> pDSV = nullptr;
 	DirectX::XMMATRIX projection;
+	bool ImGuiEnabled = true;
 
 public:
 	Graphics(HWND hWnd);
@@ -34,9 +35,12 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	~Graphics() = default;
 	void endFrame();
-	void clearBuffer(float r, float g, float b) noexcept;
+	void beginFrame(float r, float g, float b) noexcept;
 	void drawIndexed(unsigned int count) noexcept (!IS_DEBUG);
 	void setProjection(DirectX::FXMMATRIX p) noexcept;
+	void enableImGui() noexcept;
+	void disableImGui() noexcept;
+	bool isImGuiEnabled() const noexcept;
 	DirectX::XMMATRIX getProjection() const noexcept;
 
 	class Exception : public CorsaException {
