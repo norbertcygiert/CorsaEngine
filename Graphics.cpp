@@ -150,6 +150,14 @@ bool Graphics::isImGuiEnabled() const noexcept {
 	return ImGuiEnabled;
 }
 
+void Graphics::setCamera(DirectX::FXMMATRIX c) noexcept {
+	camera = c;
+}
+
+DirectX::XMMATRIX Graphics::getCamera() const noexcept {
+	return camera;
+}
+
 void Graphics::setProjection(DirectX::FXMMATRIX p) noexcept{ projection = p; }
 
 dx::XMMATRIX Graphics::getProjection() const noexcept { return projection; }

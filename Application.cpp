@@ -49,13 +49,11 @@ Application::Application() : wnd(SCREEN_W, SCREEN_H, "CorsaEngine") {
 				return {};
 			}
 		}
-	
 	};
 
 	Factory factory(wnd.accessGraphics());
 	drawables.reserve(nDrawables); //Fancy c++ vector features
 	std::generate_n(std::back_inserter(drawables), nDrawables, factory);
-
 
 	wnd.accessGraphics().setProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 40.0f));
 }
@@ -65,15 +63,19 @@ Application::~Application() {};
 void Application::frame() {
 
 	wnd.accessGraphics().beginFrame(0.07f, .0f, .12f);
+	wnd.accessGraphics().setCamera(camera.getMatrix());
 	for (auto& d : drawables) {
 		d->update(wnd.keybd.keyDown(VK_SPACE) ? .0f : 0.01f); //Press space to pause
 		d->draw(wnd.accessGraphics());
 	}
 
-	if (show_imgui_demo) {
-		ImGui::ShowDemoWindow(&show_imgui_demo);
+	//Simulation Status - any additional information about the simulation will be displayed here
+	if (ImGui::Begin("Simulation Status")) {
+		ImGui::Text("Paused?: %s", wnd.keybd.keyDown(VK_SPACE) ? "PAUSED" : "UNPAUSED");
+		ImGui::Text("Average FPS: %.1f ", ImGui::GetIO().Framerate);
 	}
-	
+	ImGui::End();
+	camera.spawnControlWindow();
 	wnd.accessGraphics().endFrame();
 }
 

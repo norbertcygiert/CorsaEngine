@@ -27,6 +27,7 @@ private:
 	wrl::ComPtr<ID3D11RenderTargetView> pTarget = nullptr;
 	wrl::ComPtr<ID3D11DepthStencilView> pDSV = nullptr;
 	DirectX::XMMATRIX projection;
+	DirectX::XMMATRIX camera;
 	bool ImGuiEnabled = true;
 
 public:
@@ -41,6 +42,8 @@ public:
 	void enableImGui() noexcept;
 	void disableImGui() noexcept;
 	bool isImGuiEnabled() const noexcept;
+	void setCamera(DirectX::FXMMATRIX c) noexcept;
+	DirectX::XMMATRIX getCamera() const noexcept;
 	DirectX::XMMATRIX getProjection() const noexcept;
 
 	class Exception : public CorsaException {

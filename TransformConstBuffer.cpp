@@ -5,7 +5,7 @@ TransformConstBuffer::TransformConstBuffer(Graphics& g, const Drawable& parent) 
 };
 
 void TransformConstBuffer::bind(Graphics& g) noexcept {
-	vcBuf->update(g, DirectX::XMMatrixTranspose( parent.getTransformXM() * g.getProjection() ) );
+	vcBuf->update(g, DirectX::XMMatrixTranspose( parent.getTransformXM() * g.getCamera() * g.getProjection() ) ); 
 	vcBuf->bind(g);
 }
 

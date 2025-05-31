@@ -79,6 +79,6 @@ void Sheet::update(float dt) noexcept {
 dx::XMMATRIX Sheet::getTransformXM() const noexcept {
 	return dx::XMMatrixRotationRollPitchYaw(pitch, yaw, roll) *
 		dx::XMMatrixTranslation(r, 0.0f, 0.0f) *
-		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi) *
-		dx::XMMatrixTranslation(0.0f, 0.0f, 20.0f);
+		dx::XMMatrixRotationRollPitchYaw(theta, phi, chi);
+		//We don't need the last translation (0,0,20), because we now have an independent camera
 }

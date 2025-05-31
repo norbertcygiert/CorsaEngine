@@ -107,7 +107,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)){
 		return true;
 	}
-	
+	const ImGuiIO imguiIO = ImGui::GetIO();
 	switch (msg) {
 	case WM_CLOSE:
 		PostQuitMessage(0);
@@ -120,6 +120,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		}
 		break;
 	case WM_SYSKEYDOWN: //For handling ALT-key and other systemkeys
+		if (imguiIO.WantCaptureKeyboard) {
+			break;
+		}
 		if (!(lParam & 0x40000000) || keybd.autorepeatOn()) {
 			keybd.onKeyDown(static_cast<unsigned char>(wParam));
 		}
@@ -128,15 +131,24 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		keybd.onKeyUp(static_cast<unsigned char>(wParam));
 		break;
 	case WM_SYSKEYUP:
+		if (imguiIO.WantCaptureKeyboard) {
+			break;
+		}
 		keybd.onKeyUp(static_cast<unsigned char>(wParam));
 		break;
 	case WM_CHAR:
+		if (imguiIO.WantCaptureKeyboard) {
+			break;
+		}
 		keybd.onChar(static_cast<unsigned char>(wParam));
 		break;
 	case WM_KILLFOCUS:
 		keybd.clearState();
 		break;
 	case WM_MOUSEMOVE:
+		if (imguiIO.WantCaptureMouse) {
+			break;
+		}
 		const POINTS pt = MAKEPOINTS(lParam);
 		if (pt.x > 0 && pt.x < w && pt.y > 0 && pt.y < h) {
 			mouse.onMove(pt.x, pt.y);
@@ -155,6 +167,14 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 			}
 		}
 		break;
+	case WM_MOUSEWHEEL:
+		if (imguiIO.WantCaptureMouse) {
+			break;
+		}
+		const POINTS ptWheel = MAKEPOINTS(lParam);
+		const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+		mouse.onMWheelDelta(ptWheel.x, ptWheel.y, delta);
+		break;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -169,8 +189,7 @@ std::string Window::Exception::translateErrorCode(HRESULT hr) noexcept {
 		nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr
 	);
-	if (nMsgLen == 0)
-	{
+	if (nMsgLen == 0) {
 		//failure
 		return "Unidentified error code";
 	}
